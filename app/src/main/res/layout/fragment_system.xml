@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.SystemFragment">
+
+    <FrameLayout
+        android:id="@+id/fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="60dp">
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/ll_main_radio"
+        android:background="@color/main_rb_bg"/>
+
+    <LinearLayout
+        android:id="@+id/ll_main_radio"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:paddingTop="5dp">
+
+        <RadioGroup
+            android:id="@+id/rg_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_main"
+                style="@style/rb_style"
+                android:checked="true"
+                android:drawableTop="@drawable/rb_main_bg"
+                android:text="@string/rb_users"/>
+
+            <RadioButton
+                android:id="@+id/rb_message"
+                style="@style/rb_style"
+                android:drawableTop="@drawable/rb_message_bg"
+                android:text="@string/rb_roles"/>
+
+            <RadioButton
+                android:id="@+id/rb_find"
+                style="@style/rb_style"
+                android:drawableTop="@drawable/rb_dynamic_bg"
+                android:text="@string/rb_menus"/>
+        </RadioGroup>
+
+
+    </LinearLayout>
+</RelativeLayout>

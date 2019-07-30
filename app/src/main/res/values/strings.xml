@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">c8</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Camel</string>
+    <string name="nav_header_subtitle">这个人很懒，什么也没留下...</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">设置</string>
+    <string name="action_sweep">扫一扫</string>
+
+    <string name="menu_home">首页</string>
+    <string name="menu_profile">个人信息</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_tools">工具</string>
+    <string name="menu_share">分享</string>
+    <string name="menu_send">发送</string>
+    <string name="menu_system">系统管理</string>
+    <string name="menu_logout">注销</string>
+    <string name="title_activity_profiles">ProfilesActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="rb_users">用户</string>
+    <string name="rb_roles">角色</string>
+    <string name="rb_menus">菜单</string>
+</resources>
