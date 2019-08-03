@@ -1,7 +1,9 @@
 package com.camel.c8;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.camel.c8.activity.LoginActivity;
 import com.camel.c8.fragment.HomeFragment;
 import com.camel.c8.fragment.ProfilesFragment;
 import com.camel.c8.fragment.SystemFragment;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction bt = fm.beginTransaction();
         bt.replace(R.id.content, HomeFragment.getInstance());
         bt.commit();
+        Intent login = new Intent(this, LoginActivity.class);
+        startActivity(login);
     }
 
     @Override

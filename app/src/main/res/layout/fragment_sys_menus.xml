@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".system.SysMenusFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <scut.carson_ho.searchview.SearchView
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Sys menu" />
+        android:layout_height="wrap_content"
+        app:textSizeSearch="5dp"
+        app:textColorSearch="#3F51B5"
+        app:textHintSearch="输入查询关键字"
+        app:searchBlockHeight="150"
+        app:searchBlockColor="#ffffff"
+        />
 
-</FrameLayout>
+    <com.yalantis.phoenix.PullToRefreshView
+        android:id="@+id/pull_to_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/list_view"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.yalantis.phoenix.PullToRefreshView>
+
+</LinearLayout>
