@@ -7,6 +7,8 @@ import com.camel.c8.activity.LoginActivity;
 import com.camel.c8.fragment.HomeFragment;
 import com.camel.c8.fragment.ProfilesFragment;
 import com.camel.c8.fragment.SystemFragment;
+import com.camel.c8.utils.ACache;
+import com.camel.c8.utils.SessionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String token = SessionUtils.accessToken(getApplicationContext());
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -49,13 +53,17 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
-
         // 初始化
         FragmentTransaction bt = fm.beginTransaction();
         bt.replace(R.id.content, HomeFragment.getInstance());
         bt.commit();
-        Intent login = new Intent(this, LoginActivity.class);
-        startActivity(login);
+        if (token == null || token == "") {
+            toLogin();
+        }
+    }
+
+    public void initLayout() {
+
     }
 
     @Override
@@ -119,8 +127,16 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void logOut(){
-        Toast.makeText(this, "注销", Toast.LENGTH_SHORT).show();
+    public void logOut() {
+        toLogin();
+        SessionUtils.delete(getApplicationContext());
+
+        Toast.makeText(this, "注销成功", Toast.LENGTH_SHORT).show();
+    }
+
+    public void toLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
 }

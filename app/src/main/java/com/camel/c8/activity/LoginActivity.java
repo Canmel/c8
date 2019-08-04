@@ -6,16 +6,12 @@ import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -28,7 +24,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.camel.c8.MainActivity;
 import com.camel.c8.R;
+import com.camel.c8.utils.JsonHelper;
+import com.camel.c8.utils.SessionUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener, ViewTreeObserver.OnGlobalLayoutListener, TextWatcher {
 
@@ -49,6 +61,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private LinearLayout mLayBackBar;
     private TextView mTvLoginForgetPwd;
     private Button mBtLoginRegister;
+    private OkHttpClient okHttpClient;
 
     //全局Toast
     private Toast mToast;
@@ -60,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        okHttpClient = new OkHttpClient();
         initView();
     }
 
@@ -390,6 +403,52 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //登录
     private void loginRequest() {
 
+//        var url = '/auth/oauth/token?grant_type=password&username=' + username + '&password=' + password;
+//        String url = "http://127.0.0.1/auth/oauth/token?username=" + username + "&password=" + pwd;
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String username = mEtLoginUsername.getText().toString();
+                    String pwd = mEtLoginPwd.getText().toString();
+                    FormBody formBody = new FormBody.Builder().build();
+                    String url = "http://192.168.100.3:8080/auth/oauth/token?grant_type=password&username=" + username + "&password=" + pwd;
+                    Request request = new Request.Builder().url(url)
+                            .addHeader("Authorization", "Basic YW5kcm9pZDphbmRyb2lk")
+                            .post(formBody).build();
+                    Call call = okHttpClient.newCall(request);
+                    Response response = call.execute();
+                    if (response.isSuccessful()) {
+                        String body = response.body().string();
+
+                        JSONObject jsonObject = JsonHelper.getJson("[" + body + "]");
+                        SessionUtils.accessToken(mLlLoginLayer.getContext(), jsonObject.getString("access_token"));
+                        SessionUtils.refreshToken(mLlLoginLayer.getContext(), jsonObject.getString("refresh_token"));
+
+                        toMain();
+
+                    } else if (response.code() == 400) {
+                        Looper.prepare();
+                        Toast toast = Toast.makeText(LoginActivity.this, "账号密码不正确，请核对正确后再次尝试！", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                        Looper.loop();
+                    }
+
+                    Log.d("---------------------", username + "----" + pwd);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void toMain() {
+        finish();
     }
 
     //微博登录
