@@ -17,8 +17,11 @@ import com.camel.c8.R;
 import com.camel.c8.model.SysMenu;
 import com.camel.c8.utils.JsonHelper;
 import com.camel.c8.utils.OkHttpUtils;
+import com.google.gson.JsonObject;
 import com.yalantis.phoenix.PullToRefreshView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -55,6 +58,8 @@ public class SysMenusFragment extends Fragment {
 
     private OkHttpClient okHttpClient;
 
+    private View view;
+
     //单例模式
     public static SysMenusFragment getInstance() {
         if (sysMenusFragment == null) {
@@ -72,16 +77,17 @@ public class SysMenusFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sys_menus, container, false);
+        view = inflater.inflate(R.layout.fragment_sys_menus, container, false);
         initSearch(view);
         List<SysMenu> list = new ArrayList<>();
         okHttpClient = new OkHttpClient();
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this.getContext(), getResource(), android.R.layout.simple_expandable_list_item_2, new String[]{"name", "url"}, new int[]{android.R.id.text1, android.R.id.text2});
+
+
 
         mPullToRefreshView = (PullToRefreshView) view.findViewById(R.id.pull_to_refresh);
-        listView = (ListView) view.findViewById(R.id.list_view);
 
-        listView.setAdapter(simpleAdapter);
+
+
         mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -93,21 +99,37 @@ public class SysMenusFragment extends Fragment {
                 }, 2000);
             }
         });
+        doResource();
         return view;
     }
 
 
-    public List<Map<String, Object>> getResource() {
-        Response response = OkHttpUtils.getInstance().get(getContext().getApplicationContext(), "http://192.168.2.225:8080/system/sysMenu", new HashMap<String, Object>());
+    public void doResource() {
         resource = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            Map<String, Object> map = new HashMap<>();
+        OkHttpUtils.getInstance().get(getContext().getApplicationContext(), "http://192.168.100.3:8080/system/sysMenu", new HashMap<String, Object>(),
+                (msg) -> {
 
-            map.put("name", "标题" + i);
-            map.put("url", "地址" + i);
-            resource.add(map);
-        }
-        return resource;
+                    try {
+                        System.out.println("--------------------");
+                        Map<String, Object> result = (Map<String, Object>) msg.obj;
+
+                        JSONArray array = (JSONArray) result.get("list");
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject o = (JSONObject) array.get(i);
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("name", o.get("name"));
+                            map.put("url", o.get("url"));
+                            resource.add(map);
+                        }
+
+                        SimpleAdapter simpleAdapter = new SimpleAdapter(this.getContext(), resource, android.R.layout.simple_list_item_activated_2, new String[]{"name", "url"}, new int[]{android.R.id.text1, android.R.id.text2});
+                        listView = (ListView) view.findViewById(R.id.list_view);
+                        listView.setAdapter(simpleAdapter);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                });
     }
 
     public void initSearch(final View view) {

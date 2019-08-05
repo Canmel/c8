@@ -5,10 +5,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.camel.c8.service.HttpCallBack;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -32,6 +38,8 @@ public class OkHttpUtils {
 
     public Response response;
 
+    public HttpCallBack httpCallBack;
+
     public OkHttpUtils() {
     }
 
@@ -39,11 +47,11 @@ public class OkHttpUtils {
         return okHttpUtils;
     }
 
-    public Response get(Context con, String urls, Map<String, Object> param) {
+    public Response get(Context con, String urls, Map<String, Object> param, HttpCallBack callBack) {
         if (okHttpClient == null) {
             okHttpClient = new OkHttpClient();
         }
-        init(urls, param, con);
+        init(urls, param, con, callBack);
 
         new Thread(
                 new Runnable() {
@@ -54,22 +62,34 @@ public class OkHttpUtils {
                                 .addHeader("Authorization", "Basic YW5kcm9pZDphbmRyb2lk")
                                 .get().build();
                         Call call = okHttpClient.newCall(request);
+                        Integer code = null;
                         JSONObject jsonObject = null;
+                        JSONObject jsonData = null;
+                        String msg = "";
+                        JSONArray jsonArray = new JSONArray();
                         try {
                             response = call.execute();
                             String body = response.body().string();
                             jsonObject = JsonHelper.getJson("[" + body + "]");
+                            code = (Integer) jsonObject.get("code");
+                            jsonData = (JSONObject) jsonObject.get("data");
+                            jsonArray = jsonData.getJSONArray("list");
+                            msg = (String) jsonObject.get("msg");
                         } catch (IOException e) {
                             e.printStackTrace();
                             Log.d("OKHTTPCLIENT", "GET请求失败");
+                        }catch (JSONException e) {
+                            Log.d("ONHTTPCLIENT", "JSON取值或转换错误");
                         }
-
-
-
+                        Map<String, Object> m = new HashMap<>();
+                        m.put("code", code);
+                        m.put("msg", msg);
+                        m.put("data", jsonData);
+                        m.put("list", jsonArray);
 
                         Message message = new Message();
                         message.what = 123;
-                        message.obj = jsonObject;
+                        message.obj = m;
                         handler.sendMessage(message);
                     }
                 }
@@ -90,19 +110,16 @@ public class OkHttpUtils {
         return p;
     }
 
-    void init(String url, Map<String, Object> params, Context context) {
+    void init(String url, Map<String, Object> params, Context context, HttpCallBack callBack) {
         this.url = url;
         this.params = params;
         this.context = context;
-        handler=new Handler(){
+        this.httpCallBack = callBack;
+        handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                switch (msg.what){
-                    case 123:
-                        System.out.println("--------------------");
-                        break;
-                }
+                callBack.call(msg);
             }
         };
     }
