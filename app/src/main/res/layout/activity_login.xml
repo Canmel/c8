@@ -26,7 +26,7 @@
             android:contentDescription="@null"
             android:paddingTop="20dp"
             android:scaleType="centerInside"
-            app:srcCompat="@mipmap/logo" />
+            app:srcCompat="@mipmap/c8_logo" />
 
         <LinearLayout
             android:id="@+id/ll_login_username"

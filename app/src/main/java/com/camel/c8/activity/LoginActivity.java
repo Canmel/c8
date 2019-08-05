@@ -414,7 +414,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     String username = mEtLoginUsername.getText().toString();
                     String pwd = mEtLoginPwd.getText().toString();
                     FormBody formBody = new FormBody.Builder().build();
-                    String url = "http://192.168.100.3:8080/auth/oauth/token?grant_type=password&username=" + username + "&password=" + pwd;
+                    String url = "http://192.168.2.225:8080/auth/oauth/token?grant_type=password&username=" + username + "&password=" + pwd;
                     Request request = new Request.Builder().url(url)
                             .addHeader("Authorization", "Basic YW5kcm9pZDphbmRyb2lk")
                             .post(formBody).build();

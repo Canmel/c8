@@ -1,38 +1,35 @@
 package com.camel.c8.system;
 
 
-import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.bin.david.form.core.SmartTable;
-import com.bin.david.form.data.style.FontStyle;
 import com.camel.c8.R;
 import com.camel.c8.model.SysMenu;
+import com.camel.c8.utils.JsonHelper;
+import com.camel.c8.utils.OkHttpUtils;
 import com.yalantis.phoenix.PullToRefreshView;
 
-import java.sql.Array;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import scut.carson_ho.searchview.ICallBack;
 import scut.carson_ho.searchview.SearchView;
 import scut.carson_ho.searchview.bCallBack;
@@ -56,6 +53,8 @@ public class SysMenusFragment extends Fragment {
 
     private SearchView searchView;
 
+    private OkHttpClient okHttpClient;
+
     //单例模式
     public static SysMenusFragment getInstance() {
         if (sysMenusFragment == null) {
@@ -76,6 +75,7 @@ public class SysMenusFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sys_menus, container, false);
         initSearch(view);
         List<SysMenu> list = new ArrayList<>();
+        okHttpClient = new OkHttpClient();
         SimpleAdapter simpleAdapter = new SimpleAdapter(this.getContext(), getResource(), android.R.layout.simple_expandable_list_item_2, new String[]{"name", "url"}, new int[]{android.R.id.text1, android.R.id.text2});
 
         mPullToRefreshView = (PullToRefreshView) view.findViewById(R.id.pull_to_refresh);
@@ -98,6 +98,7 @@ public class SysMenusFragment extends Fragment {
 
 
     public List<Map<String, Object>> getResource() {
+        Response response = OkHttpUtils.getInstance().get(getContext().getApplicationContext(), "http://192.168.2.225:8080/system/sysMenu", new HashMap<String, Object>());
         resource = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             Map<String, Object> map = new HashMap<>();
