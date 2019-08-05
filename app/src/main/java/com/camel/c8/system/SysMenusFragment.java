@@ -15,24 +15,20 @@ import androidx.fragment.app.Fragment;
 import com.bin.david.form.core.SmartTable;
 import com.camel.c8.R;
 import com.camel.c8.model.SysMenu;
-import com.camel.c8.utils.JsonHelper;
+import com.camel.c8.utils.HttpRequestUrls;
 import com.camel.c8.utils.OkHttpUtils;
-import com.google.gson.JsonObject;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import scut.carson_ho.searchview.ICallBack;
 import scut.carson_ho.searchview.SearchView;
 import scut.carson_ho.searchview.bCallBack;
@@ -58,6 +54,8 @@ public class SysMenusFragment extends Fragment {
 
     private OkHttpClient okHttpClient;
 
+    public static final String LIST_KEY = "list";
+
     private View view;
 
     //单例模式
@@ -82,11 +80,7 @@ public class SysMenusFragment extends Fragment {
         List<SysMenu> list = new ArrayList<>();
         okHttpClient = new OkHttpClient();
 
-
-
         mPullToRefreshView = (PullToRefreshView) view.findViewById(R.id.pull_to_refresh);
-
-
 
         mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
             @Override
@@ -106,14 +100,12 @@ public class SysMenusFragment extends Fragment {
 
     public void doResource() {
         resource = new ArrayList<>();
-        OkHttpUtils.getInstance().get(getContext().getApplicationContext(), "http://192.168.100.3:8080/system/sysMenu", new HashMap<String, Object>(),
+        OkHttpUtils.getInstance().get(getContext().getApplicationContext(), HttpRequestUrls.SYSMENULIST, new HashMap<String, Object>(),
                 (msg) -> {
-
                     try {
-                        System.out.println("--------------------");
                         Map<String, Object> result = (Map<String, Object>) msg.obj;
 
-                        JSONArray array = (JSONArray) result.get("list");
+                        JSONArray array = (JSONArray) result.get(LIST_KEY);
                         for (int i = 0; i < array.length(); i++) {
                             JSONObject o = (JSONObject) array.get(i);
                             Map<String, Object> map = new HashMap<>();
@@ -121,7 +113,6 @@ public class SysMenusFragment extends Fragment {
                             map.put("url", o.get("url"));
                             resource.add(map);
                         }
-
                         SimpleAdapter simpleAdapter = new SimpleAdapter(this.getContext(), resource, android.R.layout.simple_list_item_activated_2, new String[]{"name", "url"}, new int[]{android.R.id.text1, android.R.id.text2});
                         listView = (ListView) view.findViewById(R.id.list_view);
                         listView.setAdapter(simpleAdapter);
