@@ -1,10 +1,13 @@
 package com.camel.c8.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.camel.c8.activity.LoginActivity;
+import com.camel.c8.exception.UnAuthenticationException;
 import com.camel.c8.service.HttpCallBack;
 import com.google.gson.JsonObject;
 
@@ -67,30 +70,45 @@ public class OkHttpUtils {
                         JSONObject jsonData = null;
                         String msg = "";
                         JSONArray jsonArray = new JSONArray();
+                        Message message = new Message();
                         try {
                             response = call.execute();
-                            String body = response.body().string();
-                            jsonObject = JsonHelper.getJson("[" + body + "]");
-                            code = (Integer) jsonObject.get("code");
-                            jsonData = (JSONObject) jsonObject.get("data");
-                            jsonArray = jsonData.getJSONArray("list");
-                            msg = (String) jsonObject.get("msg");
+                            if (response.isSuccessful()) {
+                                String body = response.body().string();
+                                jsonObject = JsonHelper.getJson("[" + body + "]");
+                                code = (Integer) jsonObject.get("code");
+                                jsonData = (JSONObject) jsonObject.get("data");
+                                jsonArray = jsonData.getJSONArray("list");
+                                msg = (String) jsonObject.get("msg");
+                                Map<String, Object> m = new HashMap<>();
+                                m.put("code", code);
+                                m.put("msg", msg);
+                                m.put("data", jsonData);
+                                m.put("list", jsonArray);
+                                message.what = 123;
+                                message.obj = m;
+                            } else {
+                                Log.d("OKHTTPCLIENT", "请求失败");
+                                if (isUnAuthorized(response)) {
+                                    throw new UnAuthenticationException();
+                                }
+                            }
+
+
+
                         } catch (IOException e) {
                             e.printStackTrace();
                             Log.d("OKHTTPCLIENT", "GET请求失败");
-                        }catch (JSONException e) {
+                        } catch (JSONException e) {
                             Log.d("ONHTTPCLIENT", "JSON取值或转换错误");
+                        } catch (UnAuthenticationException e) {
+                            Log.d("ONHTTPCLIENT", e.getMessage());
+                            Intent i = new Intent(context, LoginActivity.class);
+                            context.startActivity(i);
                         }
-                        Map<String, Object> m = new HashMap<>();
-                        m.put("code", code);
-                        m.put("msg", msg);
-                        m.put("data", jsonData);
-                        m.put("list", jsonArray);
-
-                        Message message = new Message();
-                        message.what = 123;
-                        message.obj = m;
                         handler.sendMessage(message);
+
+
                     }
                 }
         ).start();
@@ -122,5 +140,9 @@ public class OkHttpUtils {
                 callBack.call(msg);
             }
         };
+    }
+
+    public static boolean isUnAuthorized(Response response) {
+        return response.code() == 401;
     }
 }

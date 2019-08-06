@@ -85,6 +85,7 @@ public class SysMenusFragment extends Fragment {
         mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                doResource();
                 mPullToRefreshView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -110,7 +111,8 @@ public class SysMenusFragment extends Fragment {
                             JSONObject o = (JSONObject) array.get(i);
                             Map<String, Object> map = new HashMap<>();
                             map.put("name", o.get("name"));
-                            map.put("url", o.get("url"));
+//                            map.put("url", o.get("url"));
+                            map.put("url", Math.random() * 100);
                             resource.add(map);
                         }
                         SimpleAdapter simpleAdapter = new SimpleAdapter(this.getContext(), resource, android.R.layout.simple_list_item_activated_2, new String[]{"name", "url"}, new int[]{android.R.id.text1, android.R.id.text2});
